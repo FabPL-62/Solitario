@@ -1,0 +1,31 @@
+{
+  "name": "typescript-base-project",
+  "version": "1.0.0",
+  "description": "A base project using TypeScript.",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "node log.js dev & vite --config vite/config.dev.mjs",
+    "build": "node log.js build & vite build --config vite/config.prod.mjs",
+    "dev-nolog": "vite --config vite/config.dev.mjs",
+    "build-nolog": "vite build --config vite/config.prod.mjs",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.22",
+    "@types/node": "^24.3.0",
+    "bun-types": "^1.2.23",
+    "typescript": "^4.0.0",
+    "vite": "^7.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/typescript-base-project.git"
+  },
+  "keywords": [],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "phaser": "4.0.0-rc.5"
+  }
+}
