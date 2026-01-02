@@ -58,6 +58,15 @@ export class Main extends Scene {
      */
     private _lastTime: number = 0;
 
+    /**
+     * Sonidos del juego
+     */
+    private _soundCardFoundation!: Phaser.Sound.BaseSound;
+    private _soundCardMove!: Phaser.Sound.BaseSound;
+    private _soundCardSlide!: Phaser.Sound.BaseSound;
+    private _soundWin!: Phaser.Sound.BaseSound;
+    private _backgroundMusic!: Phaser.Sound.BaseSound;
+
     constructor() {
         super('Main');
     }
@@ -65,6 +74,19 @@ export class Main extends Scene {
     create(): void {
         // Seleccionar fondo de carta aleatorio al inicio
         GameConfigManager.instance.randomizeCardBack();
+
+        // Inicializar sonidos
+        this._soundCardFoundation = this.sound.add('card_foundation');
+        this._soundCardMove = this.sound.add('card_move');
+        this._soundCardSlide = this.sound.add('card_slide');
+        this._soundWin = this.sound.add('win');
+        
+        // Música de fondo con bajo volumen y loop
+        this._backgroundMusic = this.sound.add('background_music', {
+            volume: 0.03,
+            loop: true
+        });
+        this._backgroundMusic.play();
 
         const config = GameConfigManager.instance.config;
 
@@ -411,6 +433,9 @@ export class Main extends Scene {
         const targetX = GameConfigManager.instance.getFoundationX(foundationIndex);
         const targetY = config.topRowY + config.card.frameHeight / 2;
 
+        // Reproducir sonido de foundation
+        this._soundCardFoundation.play();
+
         // Poner la carta en el frente durante la animación
         cardSprite.setDepth(1000);
 
@@ -443,6 +468,9 @@ export class Main extends Scene {
                 targetY += offset;
             }
         }
+
+        // Reproducir sonido de movimiento
+        this._soundCardMove.play();
 
         // Poner la carta en el frente durante la animación
         cardSprite.setDepth(1000);
@@ -575,6 +603,7 @@ export class Main extends Scene {
     private onDeckClick(): void {
         const result = this._gameManager.gameController.drawFromDeck();
         if (result.success) {
+            this._soundCardMove.play();
             this.layoutCards();
             this.updateUI();
         }
@@ -591,6 +620,9 @@ export class Main extends Scene {
         this._dragSourceLocation = this.findCardLocation(card);
         
         if (!this._dragSourceLocation) return;
+
+        // Reproducir sonido de tomar carta
+        this._soundCardSlide.play();
 
         // Si es del tableau, obtener todas las cartas desde esta hacia arriba
         if (this._dragSourceLocation.type === 'tableau') {
@@ -645,6 +677,7 @@ export class Main extends Scene {
         const targetLocation = this.findDropTarget(cardSprite.x, cardSprite.y);
         
         let moveSuccess = false;
+        let movedToFoundation = false;
 
         if (targetLocation) {
             if (this._dragSourceLocation.type === 'waste') {
@@ -652,6 +685,7 @@ export class Main extends Scene {
                     moveSuccess = controller.moveWasteToTableau(targetLocation.index).success;
                 } else if (targetLocation.type === 'foundation') {
                     moveSuccess = controller.moveWasteToFoundation(targetLocation.index).success;
+                    movedToFoundation = moveSuccess;
                 }
             } else if (this._dragSourceLocation.type === 'tableau') {
                 if (targetLocation.type === 'tableau') {
@@ -665,6 +699,7 @@ export class Main extends Scene {
                         this._dragSourceLocation.index,
                         targetLocation.index
                     ).success;
+                    movedToFoundation = moveSuccess;
                 }
             } else if (this._dragSourceLocation.type === 'foundation') {
                 // Mover desde foundation a tableau
@@ -674,6 +709,15 @@ export class Main extends Scene {
                         targetLocation.index
                     ).success;
                 }
+            }
+        }
+
+        // Reproducir sonido si el movimiento fue exitoso
+        if (moveSuccess) {
+            if (movedToFoundation) {
+                this._soundCardFoundation.play();
+            } else {
+                this._soundCardMove.play();
             }
         }
 
@@ -839,6 +883,9 @@ export class Main extends Scene {
      */
     private onWin(): void {
         const finalScore = this._gameManager.gameController.scoreManager.getFinalScore();
+        
+        // Reproducir sonido de victoria
+        this._soundWin.play();
         
         // Mostrar mensaje de victoria
         const victoryBg = this.add.rectangle(400, 300, 400, 200, 0x000000, 0.8);

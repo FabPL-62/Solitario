@@ -65,6 +65,13 @@ export class Preloader extends Scene {
             margin: config.spriteMarginX,
             spacing: config.spriteSpacingX,
         });
+
+        // Cargar sonidos
+        this.load.audio('card_foundation', 'assets/sounds/card1.ogg');
+        this.load.audio('card_move', 'assets/sounds/card3.ogg');
+        this.load.audio('card_slide', 'assets/sounds/cardSlide1.ogg');
+        this.load.audio('win', 'assets/sounds/win.ogg');
+        this.load.audio('background_music', 'assets/sounds/background.mp3');
     }
 
     create() {
