@@ -113,13 +113,13 @@ export class Main extends Scene {
         this._scoreText = this.add.text(10, 10, 'Puntaje: 0', style);
 
         // Movimientos
-        this._movesText = this.add.text(150, 10, 'Movimientos: 0', style);
+        this._movesText = this.add.text(120, 10, 'Movimientos: 0', style);
 
         // Tiempo
-        this._timeText = this.add.text(330, 10, 'Tiempo: 00:00', style);
+        this._timeText = this.add.text(265, 10, 'Tiempo: 00:00', style);
 
         // Botón de nuevo juego
-        const newGameBtn = this.add.text(720, 10, '🔄 Nuevo', {
+        const newGameBtn = this.add.text(633, 10, '🔄 Nuevo', {
             ...style,
             backgroundColor: '#2d5a3d',
             padding: { x: 10, y: 5 }
@@ -130,7 +130,7 @@ export class Main extends Scene {
         .on('pointerdown', () => this.restartGame());
 
         // Botón de deshacer
-        this._undoBtn = this.add.text(500, 10, '↩️ Deshacer', {
+        this._undoBtn = this.add.text(410, 10, '↩️ Deshacer', {
             ...style,
             backgroundColor: '#5a3d2d',
             padding: { x: 10, y: 5 }
@@ -145,7 +145,7 @@ export class Main extends Scene {
         .on('pointerdown', () => this.undoMove());
 
         // Botón de pista
-        const hintBtn = this.add.text(620, 10, '💡 Pista', {
+        const hintBtn = this.add.text(540, 10, '💡 Pista', {
             ...style,
             backgroundColor: '#2d5a3d',
             padding: { x: 10, y: 5 }
@@ -338,8 +338,7 @@ export class Main extends Scene {
                 const targetFoundation = this.findCorrectFoundation(wasteCard);
                 let result = controller.moveWasteToFoundation(targetFoundation);
                 if (result.success) {
-                    this.layoutCards();
-                    this.updateUI();
+                    this.animateCardToFoundation(cardSprite, targetFoundation);
                     return;
                 }
                 
@@ -348,8 +347,7 @@ export class Main extends Scene {
                     if (i !== targetFoundation) {
                         result = controller.moveWasteToFoundation(i);
                         if (result.success) {
-                            this.layoutCards();
-                            this.updateUI();
+                            this.animateCardToFoundation(cardSprite, i);
                             return;
                         }
                     }
@@ -360,8 +358,7 @@ export class Main extends Scene {
             for (let i = 0; i < 7; i++) {
                 const result = controller.moveWasteToTableau(i);
                 if (result.success) {
-                    this.layoutCards();
-                    this.updateUI();
+                    this.animateCardToTableau(cardSprite, i);
                     return;
                 }
             }
@@ -375,8 +372,7 @@ export class Main extends Scene {
                     const targetFoundation = this.findCorrectFoundation(topCard);
                     let result = controller.moveTableauToFoundation(location.index, targetFoundation);
                     if (result.success) {
-                        this.layoutCards();
-                        this.updateUI();
+                        this.animateCardToFoundation(cardSprite, targetFoundation);
                         return;
                     }
                     
@@ -385,8 +381,7 @@ export class Main extends Scene {
                         if (i !== targetFoundation) {
                             result = controller.moveTableauToFoundation(location.index, i);
                             if (result.success) {
-                                this.layoutCards();
-                                this.updateUI();
+                                this.animateCardToFoundation(cardSprite, i);
                                 return;
                             }
                         }
@@ -401,12 +396,62 @@ export class Main extends Scene {
             for (let i = 0; i < 7; i++) {
                 const result = controller.moveFoundationToTableau(location.index, i);
                 if (result.success) {
-                    this.layoutCards();
-                    this.updateUI();
+                    this.animateCardToTableau(cardSprite, i);
                     return;
                 }
             }
         }
+    }
+
+    /**
+     * Anima una carta hacia una foundation
+     */
+    private animateCardToFoundation(cardSprite: CardSprite, foundationIndex: number): void {
+        const config = GameConfigManager.instance.config;
+        const targetX = GameConfigManager.instance.getFoundationX(foundationIndex);
+        const targetY = config.topRowY + config.card.frameHeight / 2;
+
+        // Poner la carta en el frente durante la animación
+        cardSprite.setDepth(1000);
+
+        // Animar y luego actualizar el layout
+        cardSprite.animateTo(targetX, targetY, 200).then(() => {
+            this.layoutCards();
+            this.updateUI();
+        });
+    }
+
+    /**
+     * Anima una carta hacia un tableau
+     */
+    private animateCardToTableau(cardSprite: CardSprite, tableauIndex: number): void {
+        const config = GameConfigManager.instance.config;
+        const controller = this._gameManager.gameController;
+        const tableau = controller.tableaus[tableauIndex];
+        
+        const targetX = GameConfigManager.instance.getTableauX(tableauIndex);
+        
+        // Calcular posición Y basada en las cartas actuales del tableau
+        let targetY = config.tableauY + config.card.frameHeight / 2;
+        
+        // Si hay cartas en el tableau, calcular el offset
+        if (tableau.count > 1) {
+            // La carta ya fue movida, así que restamos 1 para obtener la posición correcta
+            for (let i = 0; i < tableau.count - 1; i++) {
+                const tableauCard = tableau.cards[i];
+                const offset = tableauCard.isFaceUp ? config.cardStackOffsetVisible : config.cardStackOffsetHidden;
+                targetY += offset;
+            }
+        }
+
+        // Poner la carta en el frente durante la animación
+        cardSprite.setDepth(1000);
+
+        // Animar y luego actualizar el layout
+        cardSprite.animateTo(targetX, targetY, 200).then(() => {
+            this.layoutCards();
+            this.updateUI();
+        });
     }
 
     /**

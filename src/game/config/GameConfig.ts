@@ -126,7 +126,7 @@ export const DEFAULT_VISUAL_CONFIG: GameVisualConfig = {
     cardStackOffsetVisible: 20,
     tableauY: 180,
     topRowY: 60,
-    marginLeft: 50,
+    marginLeft: 100,
     cardBackIndex: 0,
 };
 
