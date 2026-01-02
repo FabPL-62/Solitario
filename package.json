@@ -1,31 +1,91 @@
 {
-  "name": "typescript-base-project",
+  "name": "solitaire",
   "version": "1.0.0",
-  "description": "A base project using TypeScript.",
-  "main": "dist/index.js",
+  "description": "Juego de Solitario Klondike desarrollado con TypeScript y Phaser 4",
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "node log.js dev & vite --config vite/config.dev.mjs",
-    "build": "node log.js build & vite build --config vite/config.prod.mjs",
-    "dev-nolog": "vite --config vite/config.dev.mjs",
-    "build-nolog": "vite build --config vite/config.prod.mjs",
+    "dev": "vite --config vite/config.dev.mjs",
+    "build": "vite build --config vite/config.prod.mjs",
     "test": "bun test",
-    "test:watch": "bun test --watch"
+    "test:watch": "bun test --watch",
+    "electron:dev": "npm run build && electron .",
+    "electron:build": "npm run build && electron-builder --win",
+    "electron:build:all": "npm run build && electron-builder --win --mac --linux"
   },
   "devDependencies": {
     "@types/bun": "^1.2.22",
     "@types/node": "^24.3.0",
     "bun-types": "^1.2.23",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "terser": "^5.44.1",
     "typescript": "^4.0.0",
     "vite": "^7.1.4"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/typescript-base-project.git"
+    "url": "https://github.com/yourusername/solitaire.git"
   },
-  "keywords": [],
+  "keywords": [
+    "solitaire",
+    "klondike",
+    "card-game",
+    "phaser",
+    "typescript",
+    "electron"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
     "phaser": "4.0.0-rc.5"
+  },
+  "build": {
+    "appId": "com.solitaire.game",
+    "productName": "Solitaire",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "assets/icon.png"
+    }
   }
 }

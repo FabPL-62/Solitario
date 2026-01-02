@@ -53,6 +53,23 @@ npm test
 npm run test:watch
 ```
 
+### 🖥️ Escritorio (Electron)
+```bash
+# Ejecutar en modo escritorio (desarrollo)
+npm run electron:dev
+
+# Compilar ejecutable para Windows (.exe)
+npm run electron:build
+
+# Compilar para todas las plataformas (Windows, Mac, Linux)
+npm run electron:build:all
+```
+
+Los ejecutables se generan en la carpeta `release/`:
+- **Windows**: `Solitaire Setup x.x.x.exe` (instalador) y `Solitaire x.x.x.exe` (portable)
+- **Mac**: `Solitaire-x.x.x.dmg`
+- **Linux**: `Solitaire-x.x.x.AppImage` y `.deb`
+
 ## 📁 Estructura del Proyecto
 
 El proyecto sigue una arquitectura limpia con separación entre lógica de negocio y presentación:
@@ -105,6 +122,10 @@ Solitaire/
 │       ├── @playing-cards-01.png  # Spritesheet de cartas
 │       └── @back-cards-01.png     # Spritesheet de dorsos
 │
+├── electron/                      # 🖥️ Configuración de Electron
+│   ├── main.js                   # Proceso principal de Electron
+│   └── preload.js                # Script de precarga
+│
 ├── tests/                         # 🧪 Tests unitarios
 ├── vite/                          # ⚙️ Configuración de Vite
 ├── index.html                     # Página HTML principal
@@ -134,6 +155,7 @@ Mover todas las cartas a las 4 pilas de foundation, ordenadas por palo del As al
 - **Phaser 4.0.0-rc.5** - Motor de juegos 2D
 - **TypeScript 4.0.0** - Tipado estático
 - **Vite 7.1.4** - Build tool y dev server
+- **Electron 33.0.0** - Aplicación de escritorio
 - **Bun** - Runtime y test runner
 
 ## 📝 Instalación
