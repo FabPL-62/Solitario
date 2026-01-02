@@ -1,6 +1,10 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 
+// Detectar si estamos en modo desarrollo
+const isDev = process.env.ELECTRON_DEV === 'true';
+const DEV_SERVER_URL = 'http://localhost:8080';
+
 // Mantener referencia global de la ventana
 let mainWindow;
 
@@ -11,7 +15,7 @@ function createWindow() {
         height: 720,
         minWidth: 1024,
         minHeight: 600,
-        title: 'Solitaire',
+        title: 'Solitaire' + (isDev ? ' (Dev)' : ''),
         icon: path.join(__dirname, '../assets/icon.png'),
         webPreferences: {
             nodeIntegration: false,
@@ -24,11 +28,18 @@ function createWindow() {
         backgroundColor: '#1a472a'
     });
 
-    // Cargar el archivo HTML del juego
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    // Cargar desde servidor de desarrollo o archivo compilado
+    if (isDev) {
+        mainWindow.loadURL(DEV_SERVER_URL);
+        // Abrir DevTools en modo desarrollo
+        mainWindow.webContents.openDevTools();
+        console.log('🚀 Modo desarrollo - Cargando desde:', DEV_SERVER_URL);
+    } else {
+        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    }
 
     // Crear menú personalizado
-    const menu = Menu.buildFromTemplate([
+    const menuTemplate = [
         {
             label: 'Juego',
             submenu: [
@@ -102,8 +113,32 @@ function createWindow() {
                 }
             ]
         }
-    ]);
+    ];
 
+    // Agregar menú de desarrollo en modo dev
+    if (isDev) {
+        menuTemplate.push({
+            label: 'Desarrollo',
+            submenu: [
+                {
+                    label: 'Abrir DevTools',
+                    accelerator: 'F12',
+                    click: () => {
+                        mainWindow.webContents.toggleDevTools();
+                    }
+                },
+                {
+                    label: 'Recargar (Hard)',
+                    accelerator: 'CmdOrCtrl+Shift+R',
+                    click: () => {
+                        mainWindow.webContents.reloadIgnoringCache();
+                    }
+                }
+            ]
+        });
+    }
+
+    const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
 
     // Evento cuando la ventana se cierra
@@ -133,10 +168,11 @@ app.on('window-all-closed', () => {
     }
 });
 
-// Deshabilitar navegación a URLs externas por seguridad
-app.on('web-contents-created', (event, contents) => {
-    contents.on('will-navigate', (event, navigationUrl) => {
-        event.preventDefault();
+// Deshabilitar navegación a URLs externas por seguridad (solo en producción)
+if (!isDev) {
+    app.on('web-contents-created', (event, contents) => {
+        contents.on('will-navigate', (event, navigationUrl) => {
+            event.preventDefault();
+        });
     });
-});
-
+}

@@ -55,8 +55,11 @@ npm run test:watch
 
 ### 🖥️ Escritorio (Electron)
 ```bash
-# Ejecutar en modo escritorio (desarrollo)
+# Modo desarrollo con hot-reload (recomendado para desarrollo)
 npm run electron:dev
+
+# Vista previa de producción (compila y ejecuta)
+npm run electron:preview
 
 # Compilar ejecutable para Windows (.exe)
 npm run electron:build
@@ -64,6 +67,10 @@ npm run electron:build
 # Compilar para todas las plataformas (Windows, Mac, Linux)
 npm run electron:build:all
 ```
+
+**Diferencia entre modos:**
+- `electron:dev` - Usa el servidor de Vite con hot-reload. Los cambios en el código se reflejan automáticamente. Incluye DevTools abierto.
+- `electron:preview` - Compila primero y luego ejecuta. Simula el comportamiento de producción.
 
 Los ejecutables se generan en la carpeta `release/`:
 - **Windows**: `Solitaire Setup x.x.x.exe` (instalador) y `Solitaire x.x.x.exe` (portable)
